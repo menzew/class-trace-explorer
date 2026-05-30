@@ -1,6 +1,9 @@
-import pkg_resources
+try:
+    from importlib.metadata import version, PackageNotFoundError
+except ImportError:  # Python < 3.8
+    from importlib_metadata import version, PackageNotFoundError
 
 try:
-    __version__ = pkg_resources.get_distribution(__name__).version
-except:
+    __version__ = version(__name__)
+except PackageNotFoundError:
     __version__ = 'unknown'

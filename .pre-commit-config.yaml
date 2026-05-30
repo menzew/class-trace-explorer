@@ -1,5 +1,6 @@
--   repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: v0.4.2
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
     hooks:
     -   id: trailing-whitespace
     -   id: check-ast
@@ -10,11 +11,12 @@
     -   id: debug-statements
     -   id: end-of-file-fixer
     -   id: requirements-txt-fixer
+-   repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
     -   id: flake8
         args: ["--exclude=docs/conf.py"]
-
--   repo: git://github.com/FalconSocial/pre-commit-python-sorter
-    sha: 1.0.1
+-   repo: https://github.com/pycqa/isort
+    rev: 5.13.2
     hooks:
-    -   id: python-import-sorter
-        args: ['--silent-overwrite']
+    -   id: isort
