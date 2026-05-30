@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import division, print_function, absolute_import
-from graphviz import Digraph
-
-from classloadgrapher import __version__
-from classloadgrapher import template
+from __future__ import absolute_import, division, print_function
 
 import argparse
 import logging
@@ -14,6 +10,9 @@ import subprocess
 import sys
 import tempfile
 
+from graphviz import Digraph
+
+from classloadgrapher import __version__, template
 
 # JVM flag that records class resolutions on JDK 9+ (including 25).
 # The legacy -XX:+TraceClassResolution flag was removed by JEP 158

@@ -3,8 +3,7 @@
 """
 Template for legend
 """
-from __future__ import division, print_function, absolute_import
-
+from __future__ import absolute_import, division, print_function
 
 __template__ = '''<
                 <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">

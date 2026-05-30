@@ -1,3 +1,6 @@
+# Generated docs and build artifacts are not linted.
+exclude: ^(docs/|build/|.*\.egg-info/)
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -15,7 +18,7 @@ repos:
     rev: 7.1.1
     hooks:
     -   id: flake8
-        args: ["--exclude=docs/conf.py"]
+        args: ["--max-line-length=127"]
 -   repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:

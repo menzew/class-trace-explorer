@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Tests for class-resolution trace parsing (legacy + unified logging)."""
-from __future__ import print_function, absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from classloadgrapher.clgrapher import parse_resolve_line
 
