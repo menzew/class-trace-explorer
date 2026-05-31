@@ -9,3 +9,7 @@ dist/
 
 docs/html/
 docs/src/_build/
+
+node_modules/
+*.clgrapher-trace.txt
+coverage/
