@@ -10,8 +10,6 @@ import subprocess
 import sys
 import tempfile
 
-from graphviz import Digraph
-
 from classloadgrapher import __version__, template
 
 # JVM flag that records class resolutions on JDK 9+ (including 25).
@@ -58,6 +56,16 @@ def parse_resolve_line(line):
     return parts[0], parts[1]
 
 
+def abbreviate_class_name(class_name):
+    """Abbreviate package segments while keeping the class name intact."""
+    parts = class_name.split(".")
+    if len(parts) == 1:
+        return class_name
+
+    package = "".join(part[:1] + "." for part in parts[:-1] if part)
+    return package + parts[-1]
+
+
 class ClassloadGrapher:
     __author__ = "mzm"
     __copyright__ = "mzm"
@@ -69,55 +77,54 @@ class ClassloadGrapher:
 
     def openFile(self, fname):
         try:
-            _f = open(fname)
+            _f = open(fname, encoding="utf-8")
         except IOError as e:
             print("I/O error({0}) : {1}".format(e.errno, e.strerror))
             raise
         return _f
 
     def graphClassload(self, dot, fname, regex, abrv=True):
-        sigs = set()
+        edges = set()
 
-        _file = self.openFile(fname)
-
-        for line in _file:
-            parsed = parse_resolve_line(line)
-            if parsed is None:
-                continue
-
-            from_class, to_class = parsed
-
-            if (regex is not None):
-                if (regex in from_class or regex in to_class):
+        with self.openFile(fname) as _file:
+            for line in _file:
+                parsed = parse_resolve_line(line)
+                if parsed is None:
                     continue
 
-            abrv_from = ""
-            abrv_to = ""
+                from_class, to_class = parsed
 
-            sig = hash(from_class + to_class)
-            toSig = hash(to_class)
-            if (sig not in sigs and toSig not in sigs and '[' not in to_class):
-                sigs.add(sig)
-                sigs.add(toSig)
-                if (abrv):
-                    abrv_from_list = from_class.split(".")
-                    for abrv_from_package in abrv_from_list:
-                        abrv_from += abrv_from_package[:1] + '.'
-                    abrv_to_list = to_class.split(".")
-                    for abrv_to_package in abrv_to_list:
-                        abrv_to += abrv_to_package[:1] + '.'
-                    dot.edge(abrv_from + from_class.split(".")[-1], abrv_to + to_class.split(".")[-1])
+                if regex is not None and (
+                    regex in from_class or regex in to_class
+                ):
+                    continue
+
+                if '[' in to_class:
+                    continue
+
+                edge = (from_class, to_class)
+                if edge in edges:
+                    continue
+                edges.add(edge)
+
+                if abrv:
+                    dot.edge(
+                        abbreviate_class_name(from_class),
+                        abbreviate_class_name(to_class))
                 else:
                     dot.edge(from_class, to_class)
-        _file.close()
 
     def addLegend(self, dot, template=_legend):
+        from graphviz import Digraph
+
         subdot = Digraph('legend', node_attr={'shape': 'plaintext'})
         subdot.node('_legend', template)
         dot.subgraph(subdot)
 
     def render(self, dest, filter=None, abrv=False, view=False):
         """Build the class graph from a trace file and render it to ``dest``."""
+        from graphviz import Digraph
+
         dot = Digraph(node_attr={'shape': 'plaintext'}, comment='Loaded Classes')
         self.graphClassload(dot, self._trace, filter, abrv)
         self.addLegend(dot)
@@ -169,6 +176,7 @@ class ClassloadGrapher:
             version='Classload-Grapher {ver}'.format(ver=__version__))
 
         subparsers = parser.add_subparsers(dest="command")
+        subparsers.required = True
 
         def add_common_options(p):
             p.add_argument(
@@ -190,14 +198,16 @@ class ClassloadGrapher:
                 dest="loglevel",
                 help="set loglevel to INFO",
                 action='store_const',
-                const=logging.INFO)
+                const=logging.INFO,
+                default=logging.WARNING)
             p.add_argument(
                 '-vv',
                 '--very-verbose',
                 dest="loglevel",
                 help="set loglevel to DEBUG",
                 action='store_const',
-                const=logging.DEBUG)
+                const=logging.DEBUG,
+                default=logging.WARNING)
 
         graph_parser = subparsers.add_parser(
             'graph',
@@ -294,12 +304,12 @@ class ClassloadGrapher:
         self.main(sys.argv[1:])
 
     def __init__(self):
-        self.run()
+        self._trace = None
 
 
 def run():
-    ClassloadGrapher()
+    ClassloadGrapher().run()
 
 
 if __name__ == "__main__":
-    ClassloadGrapher()
+    ClassloadGrapher().run()

@@ -1,0 +1,11 @@
+.coverage
+.pytest_cache/
+__pycache__/
+*.py[cod]
+
+build/
+dist/
+*.egg-info/
+
+docs/html/
+docs/src/_build/
