@@ -40,4 +40,12 @@ describe('parseTrace', () => {
       { from: 'C', to: 'D' },
     ]);
   });
+
+  it('does NOT deduplicate identical resolve lines (dedup is buildGraph\'s job)', () => {
+    const text = ['RESOLVE A B x.java:1', 'RESOLVE A B x.java:1'].join('\n');
+    expect(parseTrace(text)).toEqual([
+      { from: 'A', to: 'B' },
+      { from: 'A', to: 'B' },
+    ]);
+  });
 });
