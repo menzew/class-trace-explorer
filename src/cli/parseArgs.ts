@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import { Command, CommanderError } from 'commander';
 
 export interface ParsedArgs {
   command: 'graph' | 'run';
@@ -12,9 +12,16 @@ export interface ParsedArgs {
   java: string;
   keepTrace?: string;
   javaArgs: string[];
+  appSources: string[];
+  appPrefixes: string[];
 }
 
 const KNOWN_FIRST = new Set(['graph', 'run', '-h', '--help', '--version', '-V']);
+
+/** Commander represents successful help/version output as an overridden exit. */
+export function isNormalCliExit(error: unknown): boolean {
+  return error instanceof CommanderError && error.exitCode === 0;
+}
 
 /** Back-compat: bare `clgrapher <trace> <dest>` still means `graph <trace> <dest>`. */
 export function normalizeArgv(argv: string[]): string[] {
@@ -25,13 +32,26 @@ export function normalizeArgv(argv: string[]): string[] {
 export function parseArgs(argv: string[]): ParsedArgs {
   let parsed: ParsedArgs | null = null;
   const program = new Command();
-  program.name('clgrapher').version('1.0.0', '-V, --version').exitOverride();
+  program.name('clgrapher').version('2.0.0', '-V, --version').exitOverride();
 
+  const collect = (value: string, previous: string[]): string[] => [...previous, value];
   const common = (cmd: Command): Command =>
     cmd
       .option('-abrv', 'abbreviate package names, e.g. java.lang. -> j.l.', false)
       .option('-f, --filter <str>', 'hide classes whose name contains this string')
-      .option('--view', 'open the generated HTML in a browser', false);
+      .option('--view', 'open the generated HTML in a browser', false)
+      .option(
+        '--app-source <path>',
+        'class directory or jar that belongs to the application (repeatable)',
+        collect,
+        [],
+      )
+      .option(
+        '--app-prefix <package>',
+        'package prefix that belongs to the application (repeatable)',
+        collect,
+        [],
+      );
 
   common(program.command('graph'))
     .argument('<trace_file>', 'class-resolution trace file')
@@ -46,6 +66,8 @@ export function parseArgs(argv: string[]): ParsedArgs {
         view: Boolean(opts.view),
         java: 'java',
         javaArgs: [],
+        appSources: (opts.appSource as string[]) ?? [],
+        appPrefixes: (opts.appPrefix as string[]) ?? [],
       };
     });
 
@@ -68,6 +90,8 @@ export function parseArgs(argv: string[]): ParsedArgs {
         java: (opts.java as string) ?? 'java',
         keepTrace: opts.keepTrace as string | undefined,
         javaArgs: javaArgs ?? [],
+        appSources: (opts.appSource as string[]) ?? [],
+        appPrefixes: (opts.appPrefix as string[]) ?? [],
       };
     });
 

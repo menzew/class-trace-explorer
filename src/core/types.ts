@@ -1,7 +1,34 @@
-/** A single class-resolution edge: `from` resolves `to` (fully-qualified names). */
+/** A class-resolution relationship and the first observed event for that pair. */
 export interface Edge {
   from: string;
   to: string;
+  /** JVM uptime from the unified-log decorator, when present. */
+  timestampMs?: number;
+  /** Source location reported by HotSpot for the resolving class. */
+  sourceFile?: string;
+  sourceLine?: number;
+  /** Additional JVM annotation, for example `verification`. */
+  detail?: string;
+  /** Number of identical resolution events collapsed into this edge. */
+  occurrences?: number;
+}
+
+export type ClassOrigin = 'system' | 'application' | 'dependency' | 'unknown';
+
+/** A `class+load` event captured alongside resolution events. */
+export interface ClassLoad {
+  name: string;
+  source?: string;
+  timestampMs?: number;
+}
+
+export interface ClassInfo extends ClassLoad {
+  origin: ClassOrigin;
+}
+
+export interface OriginHints {
+  appSources?: string[];
+  appPrefixes?: string[];
 }
 
 /** Class-level graph model. Package grouping is derived in the web layer. */
@@ -10,6 +37,8 @@ export interface GraphModel {
   classes: string[];
   /** Deduplicated class-to-class resolution edges. */
   edges: Edge[];
+  /** Load origin and source details keyed by fully-qualified class name. */
+  classInfo?: Record<string, ClassInfo>;
 }
 
 /** Initial UI state seeded by the CLI flags. */

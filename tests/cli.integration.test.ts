@@ -18,6 +18,8 @@ describe('graph subcommand (integration)', () => {
     // The embedded JSON should contain a known edge from the fixture.
     expect(html).toContain('app.Main');
     expect(html).toContain('java.io.PrintStream');
+    expect(html).toContain('shared objects file');
+    expect(html).toContain('"origin":"system"');
     // Array-target and noise lines must not appear as edges (none in fixture); sanity:
     expect(html).toContain('"edges"');
   });

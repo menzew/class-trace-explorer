@@ -6,6 +6,7 @@ describe('buildJavaArgs', () => {
     const args = buildJavaArgs({ tracePath: '/t/trace.txt', jar: 'app.jar' });
     expect(args[0]).toBe(xlogArg('/t/trace.txt'));
     expect(args.slice(1)).toEqual(['-jar', 'app.jar']);
+    expect(args[0]).toContain('class+resolve=debug,class+load=info');
   });
 
   it('builds a -cp invocation with trailing main/args', () => {

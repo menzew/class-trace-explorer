@@ -1,7 +1,0 @@
-==========
-Developers
-==========
-
-* mzmengesha
-* ronsureshi
-* ralphm

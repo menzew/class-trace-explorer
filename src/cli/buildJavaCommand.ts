@@ -1,4 +1,4 @@
-const XLOG_TAGS = 'class+resolve=debug';
+const XLOG_TAGS = 'class+resolve=debug,class+load=info';
 
 /** The unified-logging flag that writes the resolution trace to `path`. */
 export function xlogArg(path: string): string {

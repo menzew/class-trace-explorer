@@ -1,4 +1,8 @@
 [0.001s][info ][class,load   ] java.lang.Object source: shared objects file
+[0.002s][info ][class,load   ] app.Main source: file:/work/build/classes/
+[0.003s][info ][class,load   ] app.util.Helper source: file:/work/build/classes/
+[0.004s][info ][class,load   ] java.lang.String source: shared objects file
+[0.005s][info ][class,load   ] java.io.PrintStream source: jrt:/java.base
 [0.012s][debug][class,resolve] app.Main java.lang.String String.java:1
 [0.013s][debug][class,resolve] app.Main java.io.PrintStream Main.java:5
 [0.014s][debug][class,resolve] java.lang.String java.lang.Object String.java:2

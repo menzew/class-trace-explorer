@@ -1,41 +1,76 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { ClgNodeData } from '../graph/toReactFlow';
+import { originLabel } from '../graph/origin';
 import { useDispatch } from '../state';
+import { parentNamespace } from '../graph/packages';
 
 export function PackageNode({ id, data, selected }: NodeProps) {
   const d = data as ClgNodeData;
   const dispatch = useDispatch();
-  const pkg = id.startsWith('pkg:') ? id.slice('pkg:'.length) : d.package;
+  const node = d.node;
+  const pkg = id.startsWith('pkg:') ? id.slice('pkg:'.length) : node.package;
+  const parent = parentNamespace(pkg);
   return (
     <div
       style={{
-        padding: '8px 12px',
-        borderRadius: 8,
+        padding: '10px 12px',
+        width: 220,
+        height: 88,
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+        borderRadius: 6,
         border: `2px solid ${selected ? '#2563eb' : '#64748b'}`,
         background: '#f1f5f9',
-        fontSize: 13,
-        fontWeight: 600,
         opacity: d.dimmed ? 0.25 : 1,
-        whiteSpace: 'nowrap',
-        display: 'flex',
-        gap: 8,
-        alignItems: 'center',
+        fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+        boxShadow: selected ? '0 0 0 2px #bfdbfe' : '0 1px 2px #0f172a12',
       }}
-      title={`${pkg} — click + to expand`}
+      title={pkg || '(default package)'}
     >
       <Handle type="target" position={Position.Top} />
-      <span>{d.label}</span>
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          dispatch({ type: 'toggleExpand', pkg });
-        }}
-        style={{ cursor: 'pointer', border: '1px solid #94a3b8', borderRadius: 4, lineHeight: 1 }}
-        aria-label={`Expand package ${pkg}`}
-      >
-        +
-      </button>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <strong style={{ fontSize: 13, overflowWrap: 'anywhere' }}>{d.label}</strong>
+        {parent !== null && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              dispatch({ type: 'toggleExpand', pkg: parent });
+            }}
+            style={{
+              cursor: 'pointer',
+              border: '1px solid #94a3b8',
+              borderRadius: 4,
+              lineHeight: 1,
+            }}
+            aria-label={`Collapse to namespace ${parent}`}
+            title={`Collapse to ${parent}`}
+          >
+            -
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            dispatch({ type: 'toggleExpand', pkg });
+          }}
+          style={{ cursor: 'pointer', border: '1px solid #94a3b8', borderRadius: 4, lineHeight: 1 }}
+          aria-label={`Expand namespace ${pkg || 'default package'}`}
+          title={`Expand namespace ${pkg || 'default package'}`}
+        >
+          +
+        </button>
+      </div>
+      <div style={{ color: '#64748b', fontSize: 10, marginTop: 2 }}>
+        <strong style={{ fontSize: 9 }}>{originLabel(node.origin)}</strong> ·{' '}
+        <span>{d.subtitle}</span>
+      </div>
+      <div style={{ display: 'flex', gap: 12, marginTop: 7, color: '#334155', fontSize: 10 }}>
+        <span title="Incoming resolutions">← {node.incomingCount}</span>
+        <span title="Outgoing resolutions">→ {node.outgoingCount}</span>
+        <span title="Internal package resolutions">inside {node.internalEdgeCount}</span>
+      </div>
       <Handle type="source" position={Position.Bottom} />
     </div>
   );

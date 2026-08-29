@@ -19,6 +19,9 @@ export function Legend() {
       <div style={{ marginTop: 4, color: '#475569' }}>
         Boxes are packages by default; click <code>+</code> to expand into classes.
       </div>
+      <div style={{ marginTop: 4, color: '#475569' }}>
+        Origin: SYSTEM · APP · DEPENDENCY · UNKNOWN · MIXED
+      </div>
     </div>
   );
 }

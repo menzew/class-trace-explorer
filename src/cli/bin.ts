@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { parseArgs } from './parseArgs';
+import { isNormalCliExit, parseArgs } from './parseArgs';
 import { run } from './run';
 
 async function main(): Promise<void> {
@@ -8,6 +8,7 @@ async function main(): Promise<void> {
     const outPath = await run(args);
     process.stdout.write(`Wrote ${outPath}\n`);
   } catch (err) {
+    if (isNormalCliExit(err)) return;
     process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
     process.exitCode = 1;
   }

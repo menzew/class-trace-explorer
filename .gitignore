@@ -11,5 +11,16 @@ docs/html/
 docs/src/_build/
 
 node_modules/
-*.clgrapher-trace.txt
 coverage/
+
+# Local captures and generated reports
+*.clgrapher-trace.txt
+*-classload.html
+
+# Third-party applications used for local examples
+*.jar
+
+# Historical local reports retained outside the published examples
+clg-demo.html
+my-app-graph.html
+out/

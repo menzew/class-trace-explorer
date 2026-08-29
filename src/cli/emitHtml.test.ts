@@ -7,15 +7,29 @@ const data: EmbeddedData = {
   opts: { abbreviate: true, filter: null },
 };
 
-const template =
-  '<script id="clg-data" type="application/json">__CLG_DATA_PLACEHOLDER__</script>';
+const template = '<script id="clg-data" type="application/json">__CLG_DATA_PLACEHOLDER__</script>';
 
 describe('injectData', () => {
   it('replaces the placeholder with JSON and round-trips', () => {
     const html = injectData(template, data);
-    expect(html).not.toContain('__CLG_DATA_PLACEHOLDER__');
     const json = html.slice(html.indexOf('>') + 1, html.lastIndexOf('<'));
     expect(JSON.parse(json)).toEqual(data);
+  });
+
+  it('injects into the JSON data script instead of app JavaScript constants', () => {
+    const bundledTemplate = [
+      '<script>const PLACEHOLDER="__CLG_DATA_PLACEHOLDER__";</script>',
+      template,
+    ].join('');
+
+    const html = injectData(bundledTemplate, data);
+
+    expect(html).toContain('const PLACEHOLDER="__CLG_DATA_PLACEHOLDER__";');
+    const jsonScript = html.match(
+      /<script id="clg-data" type="application\/json">([\s\S]*)<\/script>$/,
+    );
+    expect(jsonScript).not.toBeNull();
+    expect(JSON.parse(jsonScript?.[1] ?? '')).toEqual(data);
   });
 
   it('escapes < to avoid breaking out of the script tag', () => {

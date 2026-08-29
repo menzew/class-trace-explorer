@@ -1,14 +1,22 @@
 import { createContext, useContext, useReducer, type Dispatch, type ReactNode } from 'react';
 import type { GraphModel } from '../core/types';
 import type { ViewState } from './graph/types';
-import { packageOf } from './graph/packages';
+import { namespacePrefixes, outerClassOf, packageNodeId, packageOf } from './graph/packages';
 import type { EmbeddedOpts } from '../core/types';
+import type { ClassOrigin } from '../core/types';
+
+export const ALL_ORIGINS: ClassOrigin[] = ['application', 'system', 'dependency', 'unknown'];
 
 export type Action =
   | { type: 'setFilter'; value: string }
+  | { type: 'toggleOrigin'; origin: ClassOrigin }
+  | { type: 'setOrigins'; origins: ClassOrigin[] }
   | { type: 'toggleAbbreviate' }
   | { type: 'setSearch'; value: string }
+  | { type: 'revealClass'; fqcn: string }
+  | { type: 'revealNamespace'; pkg: string }
   | { type: 'toggleExpand'; pkg: string }
+  | { type: 'toggleType'; outer: string }
   | { type: 'expandAll'; model: GraphModel }
   | { type: 'collapseAll' }
   | { type: 'select'; id: string | null };
@@ -16,9 +24,11 @@ export type Action =
 export function initialState(opts: EmbeddedOpts): ViewState {
   return {
     filter: opts.filter,
+    visibleOrigins: new Set(ALL_ORIGINS),
     abbreviate: opts.abbreviate,
     search: '',
     expandedPackages: new Set<string>(),
+    expandedTypes: new Set<string>(),
     selectedNodeId: null,
   };
 }
@@ -27,23 +37,73 @@ export function reduce(state: ViewState, action: Action): ViewState {
   switch (action.type) {
     case 'setFilter':
       return { ...state, filter: action.value || null };
+    case 'toggleOrigin': {
+      const next = new Set(state.visibleOrigins);
+      if (next.has(action.origin)) next.delete(action.origin);
+      else next.add(action.origin);
+      return { ...state, visibleOrigins: next, selectedNodeId: null };
+    }
+    case 'setOrigins':
+      return { ...state, visibleOrigins: new Set(action.origins), selectedNodeId: null };
     case 'toggleAbbreviate':
       return { ...state, abbreviate: !state.abbreviate };
     case 'setSearch':
       return { ...state, search: action.value };
+    case 'revealClass': {
+      const next = new Set(state.expandedPackages);
+      for (const prefix of namespacePrefixes(packageOf(action.fqcn))) next.add(prefix);
+      return {
+        ...state,
+        search: action.fqcn,
+        expandedPackages: next,
+        expandedTypes: new Set(state.expandedTypes).add(outerClassOf(action.fqcn)),
+        selectedNodeId: action.fqcn,
+      };
+    }
+    case 'revealNamespace': {
+      const next = new Set(state.expandedPackages);
+      const parents = namespacePrefixes(action.pkg).slice(0, -1);
+      for (const prefix of parents) next.add(prefix);
+      return {
+        ...state,
+        search: action.pkg,
+        expandedPackages: next,
+        selectedNodeId: packageNodeId(action.pkg),
+      };
+    }
     case 'toggleExpand': {
       const next = new Set(state.expandedPackages);
-      if (next.has(action.pkg)) next.delete(action.pkg);
-      else next.add(action.pkg);
-      return { ...state, expandedPackages: next };
+      const expandedTypes = new Set(state.expandedTypes);
+      if (next.has(action.pkg)) {
+        for (const prefix of next) {
+          if (prefix === action.pkg || prefix.startsWith(`${action.pkg}.`)) next.delete(prefix);
+        }
+        for (const outer of expandedTypes) {
+          const pkg = packageOf(outer);
+          if (pkg === action.pkg || pkg.startsWith(`${action.pkg}.`)) expandedTypes.delete(outer);
+        }
+      } else next.add(action.pkg);
+      return { ...state, expandedPackages: next, expandedTypes };
+    }
+    case 'toggleType': {
+      const next = new Set(state.expandedTypes);
+      if (next.has(action.outer)) next.delete(action.outer);
+      else next.add(action.outer);
+      return { ...state, expandedTypes: next };
     }
     case 'expandAll': {
       const next = new Set<string>();
-      for (const fqcn of action.model.classes) next.add(packageOf(fqcn));
-      return { ...state, expandedPackages: next };
+      for (const fqcn of action.model.classes) {
+        for (const prefix of namespacePrefixes(packageOf(fqcn))) next.add(prefix);
+      }
+      return {
+        ...state,
+        expandedPackages: next,
+        expandedTypes: new Set(action.model.classes.map(outerClassOf)),
+      };
     }
     case 'collapseAll':
-      return { ...state, expandedPackages: new Set<string>() };
+      return { ...state, expandedPackages: new Set<string>(), expandedTypes: new Set<string>() };
     case 'select':
       return { ...state, selectedNodeId: action.id };
     default:
