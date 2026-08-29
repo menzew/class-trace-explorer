@@ -1,16 +1,16 @@
 {
-  "name": "classloadgrapher",
+  "name": "class-trace-explorer",
   "version": "2.0.0",
   "description": "Visualize JVM class-resolution traces as an interactive React Flow graph.",
   "license": "BSD-3-Clause",
-  "author": "ClassLoadGrapher contributors",
-  "homepage": "https://github.com/menzew/ClassLoadGrapher#readme",
+  "author": "ClassTrace Explorer contributors",
+  "homepage": "https://github.com/menzew/class-trace-explorer#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/menzew/ClassLoadGrapher.git"
+    "url": "git+https://github.com/menzew/class-trace-explorer.git"
   },
   "bugs": {
-    "url": "https://github.com/menzew/ClassLoadGrapher/issues"
+    "url": "https://github.com/menzew/class-trace-explorer/issues"
   },
   "keywords": [
     "java",

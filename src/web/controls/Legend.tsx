@@ -14,7 +14,7 @@ export function Legend() {
         maxWidth: 260,
       }}
     >
-      <strong>ClassLoadGrapher</strong>
+      <strong>ClassTrace Explorer</strong>
       <div>A → B : class A resolves class B</div>
       <div style={{ marginTop: 4, color: '#475569' }}>
         Boxes are packages by default; click <code>+</code> to expand into classes.

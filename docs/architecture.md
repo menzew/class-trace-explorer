@@ -1,6 +1,6 @@
 # Architecture
 
-ClassLoadGrapher has three layers: trace processing, command-line orchestration,
+ClassTrace Explorer has three layers: trace processing, command-line orchestration,
 and the embedded React report.
 
 ## Core

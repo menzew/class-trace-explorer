@@ -1,6 +1,6 @@
-# ClassLoadGrapher
+# ClassTrace Explorer
 
-ClassLoadGrapher captures JVM class-resolution activity and turns it into an
+ClassTrace Explorer captures JVM class-resolution activity and turns it into an
 interactive, self-contained HTML graph. It helps explain startup behavior,
 application/runtime boundaries, dependency coupling, and unexpectedly loaded
 code.
@@ -34,14 +34,14 @@ The built CLI supports Node.js 18 or newer.
 ## Install From Source
 
 ```bash
-git clone https://github.com/menzew/ClassLoadGrapher.git
-cd ClassLoadGrapher
+git clone https://github.com/menzew/class-trace-explorer.git
+cd class-trace-explorer
 npm ci
 npm run build
 npm install -g .
 ```
 
-The installed command is `clgrapher`.
+The installed command remains `clgrapher` for compatibility with earlier releases.
 
 ## Quick Start
 
@@ -133,4 +133,4 @@ and the CLI at `dist/cli/bin.js`.
 
 ## License
 
-ClassLoadGrapher is available under the [BSD 3-Clause License](LICENSE.txt).
+ClassTrace Explorer is available under the [BSD 3-Clause License](LICENSE.txt).

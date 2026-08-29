@@ -2,7 +2,7 @@
 
 ## JDK 9 and newer
 
-ClassLoadGrapher uses unified JVM logging with both load and resolution events:
+ClassTrace Explorer uses unified JVM logging with both load and resolution events:
 
 ```text
 -Xlog:class+resolve=debug,class+load=info:file=classload.txt
@@ -39,7 +39,7 @@ Legacy traces generally contain less load-source metadata, so explicit
 
 Repeated `from -> to` pairs become one model edge with an occurrence count.
 Distinct directed pairs are retained. Array targets are omitted to match the
-behavior of the original ClassLoadGrapher.
+behavior of the original ClassLoadGrapher implementation.
 
 ## Generated classes
 
