@@ -112,17 +112,16 @@ reference.
 The repository includes complete, interactive reports for a minimal HelloWorld
 program, SwingSet3, and Apache NetBeans:
 
-- [Browse the example gallery](examples/index.html)
-- [Open HelloWorld](examples/reports/helloworld.html)
-- [Open SwingSet3](examples/reports/swingset.html)
-- [Open Apache NetBeans](examples/reports/netbeans.html)
+- [Browse the rendered example gallery](https://menzew.github.io/class-trace-explorer/)
+- [Open HelloWorld](https://menzew.github.io/class-trace-explorer/examples/reports/helloworld.html)
+- [Open SwingSet3](https://menzew.github.io/class-trace-explorer/examples/reports/swingset.html)
+- [Open Apache NetBeans](https://menzew.github.io/class-trace-explorer/examples/reports/netbeans.html)
 
 These are the same self-contained reports produced by the CLI, with all search,
-filtering, expansion, directed-edge, and detail views enabled. GitHub displays
-HTML as source, so clone or download the repository to run them locally. The
-`Publish Examples` workflow can deploy the gallery to GitHub Pages when public
-preview access is appropriate. See [examples/README.md](examples/README.md) for
-capture commands and report notes.
+filtering, expansion, directed-edge, and detail views enabled. GitHub's file
+viewer displays HTML source; the links above use GitHub Pages to run the reports
+in the browser. See [examples/README.md](examples/README.md) for capture commands
+and report notes.
 
 ## Documentation
 

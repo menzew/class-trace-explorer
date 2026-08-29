@@ -1,19 +1,19 @@
 # Examples
 
 The commands below assume `npm ci`, `npm run build`, and a JDK are available.
-Generated reports are stored in `examples/reports` so each example can be
+Generated reports are stored in `docs/examples/reports` so each example can be
 opened directly after cloning. They embed all graph data and are marked as
 generated files for GitHub language statistics.
 
-Open [`index.html`](index.html) for a gallery linking to all three interactive
+Open the [example gallery](../docs/index.html) for links to all three interactive
 reports. GitHub's file viewer shows HTML source rather than executing it, so use
 a local checkout or the manually deployed GitHub Pages site for the full UI.
 
-| Example         | Classes | Directed edges | Report                                 |
-| --------------- | ------: | -------------: | -------------------------------------- |
-| HelloWorld      |     265 |            473 | [Open report](reports/helloworld.html) |
-| SwingSet3       |   3,349 |         14,069 | [Open report](reports/swingset.html)   |
-| Apache NetBeans |   9,805 |         55,616 | [Open report](reports/netbeans.html)   |
+| Example         | Classes | Directed edges | Report                                                  |
+| --------------- | ------: | -------------: | ------------------------------------------------------- |
+| HelloWorld      |     265 |            473 | [Open report](../docs/examples/reports/helloworld.html) |
+| SwingSet3       |   3,349 |         14,069 | [Open report](../docs/examples/reports/swingset.html)   |
+| Apache NetBeans |   9,805 |         55,616 | [Open report](../docs/examples/reports/netbeans.html)   |
 
 Counts reflect the checked-in captures and can vary with JDK or application
 versions.
@@ -28,7 +28,7 @@ than being counted as zero; see [Bytecode footprint](../docs/bytecode-footprint.
 ```bash
 mkdir -p /tmp/clg-hello
 javac -d /tmp/clg-hello examples/helloworld/HelloWorld.java
-node dist/cli/bin.js run examples/reports/helloworld \
+node dist/cli/bin.js run docs/examples/reports/helloworld \
   --cp /tmp/clg-hello example.HelloWorld
 ```
 
@@ -41,7 +41,7 @@ Download a SwingSet3 executable JAR separately; third-party binaries are not
 stored in this repository. With the JAR at `/path/to/swingset.jar`:
 
 ```bash
-timeout 30s node dist/cli/bin.js run examples/reports/swingset \
+timeout 30s node dist/cli/bin.js run docs/examples/reports/swingset \
   --jar /path/to/swingset.jar
 ```
 
@@ -61,7 +61,7 @@ timeout 35s xvfb-run -a /path/to/netbeans/bin/netbeans \
   -J-Xlog:class+resolve=debug,class+load=info:file=/tmp/netbeans-classload.txt
 
 node dist/cli/bin.js graph /tmp/netbeans-classload.txt \
-  examples/reports/netbeans \
+  docs/examples/reports/netbeans \
   --app-prefix org.netbeans \
   --app-prefix org.openide
 ```
