@@ -13,6 +13,7 @@
   coverage without presenting unknown classes as zero bytes.
 - Added direction and origin edge-color modes with reciprocal and unknown-edge
   encodings.
+- Added direct edge selection, deterministic relayout, and full graph reset controls.
 - Retained every distinct class-resolution edge instead of reducing the graph to
   a first-resolver tree.
 - Removed the Python runtime and Graphviz `dot` dependencies.

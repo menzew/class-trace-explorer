@@ -63,4 +63,8 @@ export interface ViewState {
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
   edgeColorMode: EdgeColorMode;
+  /** Incremented to recompute deterministic positions after manual node dragging. */
+  layoutRevision?: number;
+  initialFilter?: string | null;
+  initialAbbreviate?: boolean;
 }

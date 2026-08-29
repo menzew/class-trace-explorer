@@ -59,6 +59,7 @@ function Canvas({ model }: { model: GraphModel }) {
   const { setViewport } = useReactFlow();
   const nodesInitialized = useNodesInitialized();
   const lastFitKey = useRef('');
+  const lastLayoutRevision = useRef(state.layoutRevision ?? 0);
   const view = useMemo(
     () => buildVisibleGraph(model, state),
     [model, state.filter, state.expandedPackages, state.expandedTypes, state.visibleOrigins],
@@ -71,10 +72,10 @@ function Canvas({ model }: { model: GraphModel }) {
   );
   const fitKey = useMemo(
     () =>
-      `${state.abbreviate}|${view.nodes.map((node) => node.id).join('\n')}|${view.edges
-        .map((edge) => edge.id)
-        .join('\n')}`,
-    [state.abbreviate, view],
+      `${state.layoutRevision ?? 0}|${state.abbreviate}|${view.nodes
+        .map((node) => node.id)
+        .join('\n')}|${view.edges.map((edge) => edge.id).join('\n')}`,
+    [state.abbreviate, state.layoutRevision, view],
   );
 
   useEffect(() => {
@@ -87,14 +88,23 @@ function Canvas({ model }: { model: GraphModel }) {
     );
     setNodes(rf.nodes);
     setEdges(rf.edges);
+    const layoutRevision = state.layoutRevision ?? 0;
+    if (layoutRevision !== lastLayoutRevision.current) {
+      lastLayoutRevision.current = layoutRevision;
+      const padding = window.innerWidth < 600 ? 56 : 24;
+      const viewport = viewportForNodes(rf.nodes, window.innerWidth, window.innerHeight, padding);
+      if (viewport) void setViewport(viewport);
+    }
   }, [
     view,
     state.abbreviate,
     searchId,
     state.edgeColorMode,
     state.selectedEdgeId,
+    state.layoutRevision,
     setNodes,
     setEdges,
+    setViewport,
   ]);
 
   useEffect(() => {

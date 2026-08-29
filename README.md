@@ -25,6 +25,7 @@ not required.
 - Search for a class or namespace and reveal its exact graph location.
 - Preserve directed resolution edges at every aggregation level.
 - Switch edge colors between selected-node direction and class-origin transitions.
+- Relayout dragged nodes or reset the graph to its original report state.
 
 ## Requirements
 

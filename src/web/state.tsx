@@ -19,6 +19,8 @@ export type Action =
   | { type: 'toggleType'; outer: string }
   | { type: 'expandAll'; model: GraphModel }
   | { type: 'collapseAll' }
+  | { type: 'relayout' }
+  | { type: 'reset' }
   | { type: 'setEdgeColorMode'; mode: EdgeColorMode }
   | { type: 'selectEdge'; id: string | null }
   | { type: 'select'; id: string | null };
@@ -34,6 +36,9 @@ export function initialState(opts: EmbeddedOpts): ViewState {
     selectedNodeId: null,
     selectedEdgeId: null,
     edgeColorMode: 'direction',
+    layoutRevision: 0,
+    initialFilter: opts.filter,
+    initialAbbreviate: opts.abbreviate,
   };
 }
 
@@ -120,6 +125,22 @@ export function reduce(state: ViewState, action: Action): ViewState {
         expandedPackages: new Set<string>(),
         expandedTypes: new Set<string>(),
         selectedEdgeId: null,
+      };
+    case 'relayout':
+      return { ...state, layoutRevision: (state.layoutRevision ?? 0) + 1 };
+    case 'reset':
+      return {
+        ...state,
+        filter: state.initialFilter ?? null,
+        visibleOrigins: new Set(ALL_ORIGINS),
+        abbreviate: state.initialAbbreviate ?? false,
+        search: '',
+        expandedPackages: new Set<string>(),
+        expandedTypes: new Set<string>(),
+        selectedNodeId: null,
+        selectedEdgeId: null,
+        edgeColorMode: 'direction',
+        layoutRevision: (state.layoutRevision ?? 0) + 1,
       };
     case 'setEdgeColorMode':
       return { ...state, edgeColorMode: action.mode };

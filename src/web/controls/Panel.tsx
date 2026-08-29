@@ -212,6 +212,14 @@ export function Panel({ model }: { model: GraphModel }) {
           Collapse all
         </button>
       </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+        <button type="button" onClick={() => dispatch({ type: 'relayout' })}>
+          Relayout
+        </button>
+        <button type="button" onClick={() => dispatch({ type: 'reset' })}>
+          Reset graph
+        </button>
+      </div>
     </div>
   );
 }

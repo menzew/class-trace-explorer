@@ -131,5 +131,8 @@ describe('App', () => {
     expect(origin).toHaveAttribute('aria-pressed', 'true');
     expect(direction).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByText('Application')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Relayout' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Reset graph' }));
+    expect(direction).toHaveAttribute('aria-pressed', 'true');
   });
 });

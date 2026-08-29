@@ -76,6 +76,26 @@ describe('reduce', () => {
     expect(s.selectedNodeId).toBe('a.A');
   });
 
+  it('relayouts without changing view state and resets to report defaults', () => {
+    let s = initialState({ abbreviate: true, filter: 'internal' });
+    s = reduce(s, { type: 'setSearch', value: 'Main' });
+    s = reduce(s, { type: 'toggleExpand', pkg: 'app' });
+    s = reduce(s, { type: 'setEdgeColorMode', mode: 'origin' });
+    const relaid = reduce(s, { type: 'relayout' });
+    expect(relaid.layoutRevision).toBe(1);
+    expect(relaid.search).toBe('Main');
+    expect(relaid.expandedPackages.has('app')).toBe(true);
+
+    const reset = reduce(relaid, { type: 'reset' });
+    expect(reset.layoutRevision).toBe(2);
+    expect(reset.filter).toBe('internal');
+    expect(reset.abbreviate).toBe(true);
+    expect(reset.search).toBe('');
+    expect(reset.expandedPackages.size).toBe(0);
+    expect(reset.edgeColorMode).toBe('direction');
+    expect([...reset.visibleOrigins]).toEqual(['application', 'system', 'dependency', 'unknown']);
+  });
+
   it('toggles an origin and clears a stale selection', () => {
     let s = initialState({ abbreviate: false, filter: null });
     s = { ...s, selectedNodeId: 'pkg:java' };
