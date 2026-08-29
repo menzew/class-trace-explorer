@@ -21,6 +21,7 @@ not required.
 - Distinguish application, system, dependency, unknown, and mixed-origin nodes.
 - Filter by origin or class name while retaining truthful hidden-edge counts.
 - Inspect load source, timing, source locations, topology, and JVM annotations.
+- Compare class-file bytecode footprint with truthful aggregate coverage.
 - Search for a class or namespace and reveal its exact graph location.
 - Preserve directed resolution edges at every aggregation level.
 
@@ -108,8 +109,19 @@ reference.
 
 ## Examples
 
-The repository includes reproducible examples for a minimal HelloWorld program,
-SwingSet3, and Apache NetBeans. See [examples/README.md](examples/README.md) for
+The repository includes complete, interactive reports for a minimal HelloWorld
+program, SwingSet3, and Apache NetBeans:
+
+- [Browse the example gallery](examples/index.html)
+- [Open HelloWorld](examples/reports/helloworld.html)
+- [Open SwingSet3](examples/reports/swingset.html)
+- [Open Apache NetBeans](examples/reports/netbeans.html)
+
+These are the same self-contained reports produced by the CLI, with all search,
+filtering, expansion, directed-edge, and detail views enabled. GitHub displays
+HTML as source, so clone or download the repository to run them locally. The
+`Publish Examples` workflow can deploy the gallery to GitHub Pages when public
+preview access is appropriate. See [examples/README.md](examples/README.md) for
 capture commands and report notes.
 
 ## Documentation
@@ -117,6 +129,7 @@ capture commands and report notes.
 - [Architecture](docs/architecture.md)
 - [Trace formats](docs/trace-formats.md)
 - [Origin classification](docs/origin-classification.md)
+- [Bytecode footprint](docs/bytecode-footprint.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 

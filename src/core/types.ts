@@ -24,6 +24,10 @@ export interface ClassLoad {
 
 export interface ClassInfo extends ClassLoad {
   origin: ClassOrigin;
+  /** Uncompressed bytes in the class file resolved from the reported load source. */
+  classFileBytes?: number;
+  /** How the byte count was obtained; allows future agent measurements to coexist. */
+  sizeProvenance?: 'class-file';
 }
 
 export interface OriginHints {

@@ -5,6 +5,10 @@ Generated reports are stored in `examples/reports` so each example can be
 opened directly after cloning. They embed all graph data and are marked as
 generated files for GitHub language statistics.
 
+Open [`index.html`](index.html) for a gallery linking to all three interactive
+reports. GitHub's file viewer shows HTML source rather than executing it, so use
+a local checkout or the manually deployed GitHub Pages site for the full UI.
+
 | Example         | Classes | Directed edges | Report                                 |
 | --------------- | ------: | -------------: | -------------------------------------- |
 | HelloWorld      |     265 |            473 | [Open report](reports/helloworld.html) |
@@ -13,6 +17,11 @@ generated files for GitHub language statistics.
 
 Counts reflect the checked-in captures and can vary with JDK or application
 versions.
+
+The reports also demonstrate class-file footprint enrichment. Coverage for
+application and dependency classes is 100% in HelloWorld, 97.8% in SwingSet3,
+and 98.3% in NetBeans. JDK module and generated classes remain unmeasured rather
+than being counted as zero; see [Bytecode footprint](../docs/bytecode-footprint.md).
 
 ## HelloWorld
 

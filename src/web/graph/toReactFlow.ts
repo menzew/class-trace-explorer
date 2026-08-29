@@ -1,6 +1,7 @@
 import { MarkerType, type Edge as RFEdge, type Node as RFNode } from '@xyflow/react';
 import type { ViewEdge, ViewGraph, ViewNode } from './types';
 import { layoutGraph } from './layout';
+import { formatBytes } from './formatBytes';
 
 const EDGE_RENDER_LIMIT = 5000;
 
@@ -9,6 +10,7 @@ export interface ClgNodeData extends Record<string, unknown> {
   subtitle: string;
   node: ViewNode;
   dimmed: boolean;
+  sizeRatio: number;
 }
 
 export interface Highlight {
@@ -39,21 +41,23 @@ export function nodeLabel(node: ViewNode, _abbrev: boolean): string {
 
 /** Secondary node label: package context or represented class count. */
 export function nodeSubtitle(node: ViewNode, abbrev: boolean): string {
+  const footprint =
+    node.classFileBytes === undefined ? '' : ` · ${formatBytes(node.classFileBytes)}`;
   if (node.kind === 'package') {
     const count = node.classCount ?? 0;
-    return `${count} ${count === 1 ? 'class' : 'classes'}`;
+    return `${count} ${count === 1 ? 'class' : 'classes'}${footprint}`;
   }
   if (node.kind === 'type') {
     const count = node.classCount ?? 0;
-    return `${count} ${count === 1 ? 'member' : 'members'}`;
+    return `${count} ${count === 1 ? 'member' : 'members'}${footprint}`;
   }
-  if (!abbrev) return node.package || '(default package)';
+  if (!abbrev) return `${node.package || '(default package)'}${footprint}`;
   const pkg = node.package
     .split('.')
     .filter(Boolean)
     .map((segment) => segment.charAt(0))
     .join('.');
-  return pkg || '(default package)';
+  return `${pkg || '(default package)'}${footprint}`;
 }
 
 /** Rough node box size based on label length (dagre needs sizes up front). */
@@ -100,6 +104,7 @@ export function toReactFlow(
 ): { nodes: RFNode<ClgNodeData>[]; edges: RFEdge[] } {
   const highlight = computeHighlight(view, selectedId);
   const visibleEdges = renderableEdges(view, highlight);
+  const maxClassFileBytes = Math.max(0, ...view.nodes.map((node) => node.classFileBytes ?? 0));
 
   const layoutInput = view.nodes.map((n) => {
     const label = nodeLabel(n, abbrev);
@@ -121,6 +126,10 @@ export function toReactFlow(
         subtitle: nodeSubtitle(n, abbrev),
         node: n,
         dimmed: highlight.active && !highlight.nodes.has(n.id),
+        sizeRatio:
+          n.classFileBytes === undefined || maxClassFileBytes === 0
+            ? 0
+            : Math.sqrt(n.classFileBytes / maxClassFileBytes),
       },
     };
   });

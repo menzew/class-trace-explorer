@@ -56,6 +56,7 @@ describe('nodeLabel', () => {
     };
     expect(nodeLabel(pkg, false)).toBe('a.b');
     expect(nodeSubtitle(pkg, false)).toBe('5 classes');
+    expect(nodeSubtitle({ ...pkg, classFileBytes: 1536 }, false)).toBe('5 classes · 1.5 KB');
   });
 });
 
@@ -88,6 +89,23 @@ describe('computeHighlight', () => {
     expect(h.active).toBe(true);
     expect([...h.nodes].sort()).toEqual(['a.A', 'a.B', 'a.C']);
     expect([...h.edges].sort()).toEqual(['a.A->a.B', 'a.B->a.C']);
+  });
+});
+
+describe('class-file footprint', () => {
+  it('uses square-root scaling without changing node dimensions', () => {
+    const view: ViewGraph = {
+      nodes: [
+        { ...classNode('a.Small'), classFileBytes: 100 },
+        { ...classNode('a.Large'), classFileBytes: 400 },
+        classNode('a.Unknown'),
+      ],
+      edges: [],
+    };
+    const nodes = toReactFlow(view, false, null);
+    expect(nodes.nodes.find((node) => node.id === 'a.Small')?.data.sizeRatio).toBe(0.5);
+    expect(nodes.nodes.find((node) => node.id === 'a.Large')?.data.sizeRatio).toBe(1);
+    expect(nodes.nodes.find((node) => node.id === 'a.Unknown')?.data.sizeRatio).toBe(0);
   });
 });
 

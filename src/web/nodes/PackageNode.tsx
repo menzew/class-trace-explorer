@@ -24,6 +24,7 @@ export function PackageNode({ id, data, selected }: NodeProps) {
         opacity: d.dimmed ? 0.25 : 1,
         fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
         boxShadow: selected ? '0 0 0 2px #bfdbfe' : '0 1px 2px #0f172a12',
+        position: 'relative',
       }}
       title={pkg || '(default package)'}
     >
@@ -71,6 +72,19 @@ export function PackageNode({ id, data, selected }: NodeProps) {
         <span title="Outgoing resolutions">→ {node.outgoingCount}</span>
         <span title="Internal package resolutions">inside {node.internalEdgeCount}</span>
       </div>
+      {d.sizeRatio > 0 && (
+        <div
+          title="Relative class-file footprint"
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: `${Math.max(4, d.sizeRatio * 100)}%`,
+            height: 3,
+            background: '#2d6a8a',
+          }}
+        />
+      )}
       <Handle type="source" position={Position.Bottom} />
     </div>
   );

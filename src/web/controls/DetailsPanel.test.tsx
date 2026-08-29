@@ -20,6 +20,8 @@ const node: ViewNode = {
   annotations: ['verification'],
   loadSources: ['file:/work/classes/'],
   loadedAtMs: 4,
+  classFileBytes: 1536,
+  measuredClassCount: 1,
 };
 
 describe('DetailsPanel', () => {
@@ -36,6 +38,7 @@ describe('DetailsPanel', () => {
     expect(screen.getByText('verification')).toBeInTheDocument();
     expect(screen.getByText('file:/work/classes/')).toBeInTheDocument();
     expect(screen.getByText(/class · APP/)).toBeInTheDocument();
+    expect(screen.getByText('1.5 KB')).toBeInTheDocument();
   });
 
   it('separates inner-class members without expanding the graph', () => {
@@ -49,6 +52,7 @@ describe('DetailsPanel', () => {
             package: 'org.netbeans',
             fqcn: 'org.netbeans.MainImpl',
             classCount: 3,
+            measuredClassCount: 1,
             members: [
               'org.netbeans.MainImpl',
               'org.netbeans.MainImpl$1',
@@ -61,5 +65,6 @@ describe('DetailsPanel', () => {
     expect(screen.getByText('MainImpl anonymous #1')).toBeInTheDocument();
     expect(screen.getByText('MainImpl.BootClassLoader')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Show members as nodes' })).toBeInTheDocument();
+    expect(screen.getByText('1 / 3 classes')).toBeInTheDocument();
   });
 });

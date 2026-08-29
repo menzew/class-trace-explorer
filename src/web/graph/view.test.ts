@@ -41,6 +41,33 @@ describe('buildVisibleGraph', () => {
     expect(view.edges).toEqual([{ id: 'pkg:a->pkg:b', source: 'pkg:a', target: 'pkg:b' }]);
   });
 
+  it('aggregates only known class-file bytes and reports measurement coverage', () => {
+    const sized: GraphModel = {
+      ...model,
+      classInfo: {
+        'a.Foo': {
+          name: 'a.Foo',
+          origin: 'application',
+          classFileBytes: 1200,
+          sizeProvenance: 'class-file',
+        },
+        'a.Bar': { name: 'a.Bar', origin: 'application' },
+        'b.Baz': {
+          name: 'b.Baz',
+          origin: 'dependency',
+          classFileBytes: 800,
+          sizeProvenance: 'class-file',
+        },
+      },
+    };
+
+    expect(buildVisibleGraph(sized, base).nodes.find((node) => node.id === 'pkg:a')).toMatchObject({
+      classCount: 2,
+      classFileBytes: 1200,
+      measuredClassCount: 1,
+    });
+  });
+
   it('expands a package into its class nodes and reroutes edges', () => {
     const view = buildVisibleGraph(model, {
       ...base,

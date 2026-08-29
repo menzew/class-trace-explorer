@@ -7,6 +7,7 @@ import { emitHtml } from './emitHtml';
 import { runJava, cleanupTrace } from './runJava';
 import { openInBrowser } from './open';
 import type { ParsedArgs } from './parseArgs';
+import { measureClassFiles } from './measureClassFiles';
 
 function inferredAppSources(args: ParsedArgs): string[] {
   const sources = [...args.appSources];
@@ -42,10 +43,12 @@ export async function run(args: ParsedArgs): Promise<string> {
 
   try {
     const text = await readFile(tracePath, 'utf8');
-    const graph = buildGraph(parseTrace(text), parseClassLoads(text), {
-      appSources: inferredAppSources(args),
-      appPrefixes: args.appPrefixes,
-    });
+    const graph = await measureClassFiles(
+      buildGraph(parseTrace(text), parseClassLoads(text), {
+        appSources: inferredAppSources(args),
+        appPrefixes: args.appPrefixes,
+      }),
+    );
     const data: EmbeddedData = {
       graph,
       opts: { abbreviate: args.abbreviate, filter: args.filter },

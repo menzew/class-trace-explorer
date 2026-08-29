@@ -9,6 +9,8 @@
   truthful hidden-edge counts, and click-to-highlight inspection.
 - Added source-backed SYSTEM, APP, DEPENDENCY, UNKNOWN, and MIXED class origin
   labels using combined class-resolution and class-load traces.
+- Added class-file bytecode footprint, collapsed-node totals, and measurement
+  coverage without presenting unknown classes as zero bytes.
 - Retained every distinct class-resolution edge instead of reducing the graph to
   a first-resolver tree.
 - Removed the Python runtime and Graphviz `dot` dependencies.

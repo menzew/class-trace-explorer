@@ -22,6 +22,10 @@ export interface ViewNode {
   members?: string[];
   /** Number of classes represented (package nodes only). */
   classCount?: number;
+  /** Sum of known uncompressed class-file bytes represented by this node. */
+  classFileBytes?: number;
+  /** Classes contributing to classFileBytes; compare with classCount for coverage. */
+  measuredClassCount?: number;
   origin: NodeOrigin;
   incomingCount: number;
   outgoingCount: number;

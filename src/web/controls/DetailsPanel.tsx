@@ -2,6 +2,7 @@ import type { ViewNode } from '../graph/types';
 import { originLabel } from '../graph/origin';
 import { useDispatch } from '../state';
 import { displayClassName } from '../graph/toReactFlow';
+import { formatBytes } from '../graph/formatBytes';
 
 function formatTime(ms: number): string {
   return ms < 1 ? `${Math.round(ms * 1000)} us` : `${ms.toFixed(ms < 10 ? 2 : 1)} ms`;
@@ -96,6 +97,20 @@ export function DetailsPanel({ node }: { node: ViewNode | undefined }) {
           <div>
             <dt style={{ color: '#64748b' }}>Loaded at</dt>
             <dd style={{ margin: 0 }}>{formatTime(node.loadedAtMs)}</dd>
+          </div>
+        )}
+        <div>
+          <dt style={{ color: '#64748b' }}>Class-file bytes</dt>
+          <dd style={{ margin: 0 }}>
+            {node.classFileBytes === undefined ? 'Not measured' : formatBytes(node.classFileBytes)}
+          </dd>
+        </div>
+        {node.classCount !== undefined && (
+          <div>
+            <dt style={{ color: '#64748b' }}>Size coverage</dt>
+            <dd style={{ margin: 0 }}>
+              {node.measuredClassCount ?? 0} / {node.classCount} classes
+            </dd>
           </div>
         )}
       </dl>

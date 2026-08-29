@@ -15,6 +15,8 @@ interface NodeAccumulator {
   origins: Set<ViewNode['origin']>;
   loadSources: Set<string>;
   loadedAtMs?: number;
+  classFileBytes: number;
+  measuredClassCount: number;
 }
 
 function newAccumulator(): NodeAccumulator {
@@ -28,6 +30,8 @@ function newAccumulator(): NodeAccumulator {
     annotations: new Set(),
     origins: new Set(),
     loadSources: new Set(),
+    classFileBytes: 0,
+    measuredClassCount: 0,
   };
 }
 
@@ -109,6 +113,10 @@ export function buildVisibleGraph(model: GraphModel, state: ViewState): ViewGrap
     nodeIds.add(id);
     nodeStats.origins.add(info?.origin ?? classifyOrigin({ name: fqcn }));
     if (info?.source) nodeStats.loadSources.add(info.source);
+    if (info?.classFileBytes !== undefined) {
+      nodeStats.classFileBytes += info.classFileBytes;
+      nodeStats.measuredClassCount += 1;
+    }
     if (info?.timestampMs !== undefined) {
       nodeStats.loadedAtMs = Math.min(nodeStats.loadedAtMs ?? Infinity, info.timestampMs);
     }
@@ -226,6 +234,8 @@ export function buildVisibleGraph(model: GraphModel, state: ViewState): ViewGrap
       annotations: [...nodeStats.annotations].slice(0, 8),
       loadSources: [...nodeStats.loadSources].slice(0, 8),
       loadedAtMs: nodeStats.loadedAtMs,
+      classFileBytes: nodeStats.measuredClassCount > 0 ? nodeStats.classFileBytes : undefined,
+      measuredClassCount: nodeStats.measuredClassCount,
     };
     if (id.startsWith('pkg:')) {
       const pkg = id.slice('pkg:'.length);
