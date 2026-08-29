@@ -24,6 +24,7 @@ not required.
 - Compare class-file bytecode footprint with truthful aggregate coverage.
 - Search for a class or namespace and reveal its exact graph location.
 - Preserve directed resolution edges at every aggregation level.
+- Switch edge colors between selected-node direction and class-origin transitions.
 
 ## Requirements
 

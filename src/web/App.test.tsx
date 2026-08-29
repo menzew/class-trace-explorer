@@ -54,6 +54,8 @@ describe('App', () => {
       expandedPackages: new Set(),
       expandedTypes: new Set(),
       selectedNodeId: null,
+      selectedEdgeId: null,
+      edgeColorMode: 'direction',
     };
     const view = buildVisibleGraph(nested, state);
     expect(resolveSearchId(nested, view, state.expandedPackages, 'CORE.main', null)).toBe(
@@ -112,5 +114,22 @@ describe('App', () => {
     expect(await screen.findByText('app')).toBeInTheDocument();
     expect(apply).toBeDisabled();
     await waitFor(() => expect(screen.queryByText('java')).not.toBeInTheDocument());
+  });
+
+  it('switches between direction and origin edge colors', () => {
+    render(
+      <StateProvider opts={{ abbreviate: false, filter: null }}>
+        <App model={model} />
+      </StateProvider>,
+    );
+    const direction = screen.getByRole('button', { name: 'Direction' });
+    const origin = screen.getByRole('button', { name: 'Origin' });
+    expect(direction).toHaveAttribute('aria-pressed', 'true');
+    expect(origin).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText('Incoming')).toBeInTheDocument();
+    fireEvent.click(origin);
+    expect(origin).toHaveAttribute('aria-pressed', 'true');
+    expect(direction).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText('Application')).toBeInTheDocument();
   });
 });

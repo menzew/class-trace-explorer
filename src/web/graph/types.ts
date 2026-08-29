@@ -2,6 +2,7 @@ import type { ClassOrigin } from '../../core/types';
 
 export type NodeOrigin = ClassOrigin | 'mixed';
 export type NodeRole = 'entry' | 'leaf' | 'hub' | 'bridge';
+export type EdgeColorMode = 'direction' | 'origin';
 
 export interface SourceLocation {
   file: string;
@@ -60,4 +61,6 @@ export interface ViewState {
   expandedPackages: Set<string>;
   expandedTypes: Set<string>;
   selectedNodeId: string | null;
+  selectedEdgeId: string | null;
+  edgeColorMode: EdgeColorMode;
 }

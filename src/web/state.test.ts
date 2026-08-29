@@ -15,6 +15,7 @@ describe('reduce', () => {
     expect([...s.visibleOrigins]).toEqual(['application', 'system', 'dependency', 'unknown']);
     expect(s.expandedPackages.size).toBe(0);
     expect(s.expandedTypes.size).toBe(0);
+    expect(s.edgeColorMode).toBe('direction');
   });
 
   it('toggles a package in expandedPackages', () => {
@@ -52,6 +53,26 @@ describe('reduce', () => {
     s = reduce(s, { type: 'setFilter', value: 'foo' });
     expect(s.filter).toBe('foo');
     s = reduce(s, { type: 'select', id: 'a.A' });
+    expect(s.selectedNodeId).toBe('a.A');
+  });
+
+  it('switches the edge color mode', () => {
+    const s = reduce(initialState({ abbreviate: false, filter: null }), {
+      type: 'setEdgeColorMode',
+      mode: 'origin',
+    });
+    expect(s.edgeColorMode).toBe('origin');
+  });
+
+  it('selects an edge independently and clears it on node selection', () => {
+    let s = reduce(initialState({ abbreviate: false, filter: null }), {
+      type: 'selectEdge',
+      id: 'a.A->b.B',
+    });
+    expect(s.selectedEdgeId).toBe('a.A->b.B');
+    expect(s.selectedNodeId).toBeNull();
+    s = reduce(s, { type: 'select', id: 'a.A' });
+    expect(s.selectedEdgeId).toBeNull();
     expect(s.selectedNodeId).toBe('a.A');
   });
 

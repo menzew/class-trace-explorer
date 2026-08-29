@@ -177,6 +177,33 @@ export function Panel({ model }: { model: GraphModel }) {
         />
         Abbreviate (java.lang. → j.l.)
       </label>
+      <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
+        <legend style={{ marginBottom: 3 }}>Edge colors</legend>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+          {(['direction', 'origin'] as const).map((mode, index) => {
+            const active = state.edgeColorMode === mode;
+            return (
+              <button
+                key={mode}
+                type="button"
+                aria-pressed={active}
+                onClick={() => dispatch({ type: 'setEdgeColorMode', mode })}
+                style={{
+                  border: '1px solid #94a3b8',
+                  borderRadius: index === 0 ? '4px 0 0 4px' : '0 4px 4px 0',
+                  background: active ? '#334155' : '#ffffff',
+                  color: active ? '#ffffff' : '#334155',
+                  padding: '5px 8px',
+                  fontWeight: active ? 700 : 400,
+                  cursor: 'pointer',
+                }}
+              >
+                {mode === 'direction' ? 'Direction' : 'Origin'}
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
       <div style={{ display: 'flex', gap: 6 }}>
         <button type="button" onClick={() => dispatch({ type: 'expandAll', model })}>
           Expand all

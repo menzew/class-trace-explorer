@@ -10,6 +10,7 @@ import {
   useNodesInitialized,
   useReactFlow,
   type NodeMouseHandler,
+  type EdgeMouseHandler,
   type Node as RFNode,
   type Edge as RFEdge,
 } from '@xyflow/react';
@@ -77,10 +78,24 @@ function Canvas({ model }: { model: GraphModel }) {
   );
 
   useEffect(() => {
-    const rf = toReactFlow(view, state.abbreviate, searchId);
+    const rf = toReactFlow(
+      view,
+      state.abbreviate,
+      searchId,
+      state.edgeColorMode,
+      state.selectedEdgeId,
+    );
     setNodes(rf.nodes);
     setEdges(rf.edges);
-  }, [view, state.abbreviate, searchId, setNodes, setEdges]);
+  }, [
+    view,
+    state.abbreviate,
+    searchId,
+    state.edgeColorMode,
+    state.selectedEdgeId,
+    setNodes,
+    setEdges,
+  ]);
 
   useEffect(() => {
     if (!nodesInitialized || lastFitKey.current === fitKey) return;
@@ -108,6 +123,9 @@ function Canvas({ model }: { model: GraphModel }) {
   const onNodeClick: NodeMouseHandler = (_, node) => {
     dispatch({ type: 'select', id: node.id });
   };
+  const onEdgeClick: EdgeMouseHandler = (_, edge) => {
+    dispatch({ type: 'selectEdge', id: edge.id });
+  };
 
   return (
     <ReactFlow
@@ -116,6 +134,7 @@ function Canvas({ model }: { model: GraphModel }) {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={onNodeClick}
+      onEdgeClick={onEdgeClick}
       onPaneClick={() => dispatch({ type: 'select', id: null })}
       nodeTypes={nodeTypes}
       fitView

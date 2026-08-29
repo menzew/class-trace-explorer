@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer, type Dispatch, type ReactNode } from 'react';
 import type { GraphModel } from '../core/types';
-import type { ViewState } from './graph/types';
+import type { EdgeColorMode, ViewState } from './graph/types';
 import { namespacePrefixes, outerClassOf, packageNodeId, packageOf } from './graph/packages';
 import type { EmbeddedOpts } from '../core/types';
 import type { ClassOrigin } from '../core/types';
@@ -19,6 +19,8 @@ export type Action =
   | { type: 'toggleType'; outer: string }
   | { type: 'expandAll'; model: GraphModel }
   | { type: 'collapseAll' }
+  | { type: 'setEdgeColorMode'; mode: EdgeColorMode }
+  | { type: 'selectEdge'; id: string | null }
   | { type: 'select'; id: string | null };
 
 export function initialState(opts: EmbeddedOpts): ViewState {
@@ -30,21 +32,28 @@ export function initialState(opts: EmbeddedOpts): ViewState {
     expandedPackages: new Set<string>(),
     expandedTypes: new Set<string>(),
     selectedNodeId: null,
+    selectedEdgeId: null,
+    edgeColorMode: 'direction',
   };
 }
 
 export function reduce(state: ViewState, action: Action): ViewState {
   switch (action.type) {
     case 'setFilter':
-      return { ...state, filter: action.value || null };
+      return { ...state, filter: action.value || null, selectedEdgeId: null };
     case 'toggleOrigin': {
       const next = new Set(state.visibleOrigins);
       if (next.has(action.origin)) next.delete(action.origin);
       else next.add(action.origin);
-      return { ...state, visibleOrigins: next, selectedNodeId: null };
+      return { ...state, visibleOrigins: next, selectedNodeId: null, selectedEdgeId: null };
     }
     case 'setOrigins':
-      return { ...state, visibleOrigins: new Set(action.origins), selectedNodeId: null };
+      return {
+        ...state,
+        visibleOrigins: new Set(action.origins),
+        selectedNodeId: null,
+        selectedEdgeId: null,
+      };
     case 'toggleAbbreviate':
       return { ...state, abbreviate: !state.abbreviate };
     case 'setSearch':
@@ -58,6 +67,7 @@ export function reduce(state: ViewState, action: Action): ViewState {
         expandedPackages: next,
         expandedTypes: new Set(state.expandedTypes).add(outerClassOf(action.fqcn)),
         selectedNodeId: action.fqcn,
+        selectedEdgeId: null,
       };
     }
     case 'revealNamespace': {
@@ -69,6 +79,7 @@ export function reduce(state: ViewState, action: Action): ViewState {
         search: action.pkg,
         expandedPackages: next,
         selectedNodeId: packageNodeId(action.pkg),
+        selectedEdgeId: null,
       };
     }
     case 'toggleExpand': {
@@ -83,13 +94,13 @@ export function reduce(state: ViewState, action: Action): ViewState {
           if (pkg === action.pkg || pkg.startsWith(`${action.pkg}.`)) expandedTypes.delete(outer);
         }
       } else next.add(action.pkg);
-      return { ...state, expandedPackages: next, expandedTypes };
+      return { ...state, expandedPackages: next, expandedTypes, selectedEdgeId: null };
     }
     case 'toggleType': {
       const next = new Set(state.expandedTypes);
       if (next.has(action.outer)) next.delete(action.outer);
       else next.add(action.outer);
-      return { ...state, expandedTypes: next };
+      return { ...state, expandedTypes: next, selectedEdgeId: null };
     }
     case 'expandAll': {
       const next = new Set<string>();
@@ -100,12 +111,22 @@ export function reduce(state: ViewState, action: Action): ViewState {
         ...state,
         expandedPackages: next,
         expandedTypes: new Set(action.model.classes.map(outerClassOf)),
+        selectedEdgeId: null,
       };
     }
     case 'collapseAll':
-      return { ...state, expandedPackages: new Set<string>(), expandedTypes: new Set<string>() };
+      return {
+        ...state,
+        expandedPackages: new Set<string>(),
+        expandedTypes: new Set<string>(),
+        selectedEdgeId: null,
+      };
+    case 'setEdgeColorMode':
+      return { ...state, edgeColorMode: action.mode };
+    case 'selectEdge':
+      return { ...state, selectedEdgeId: action.id, selectedNodeId: null };
     case 'select':
-      return { ...state, selectedNodeId: action.id };
+      return { ...state, selectedNodeId: action.id, selectedEdgeId: null };
     default:
       return state;
   }

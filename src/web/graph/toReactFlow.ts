@@ -1,5 +1,5 @@
 import { MarkerType, type Edge as RFEdge, type Node as RFNode } from '@xyflow/react';
-import type { ViewEdge, ViewGraph, ViewNode } from './types';
+import type { EdgeColorMode, NodeOrigin, ViewEdge, ViewGraph, ViewNode } from './types';
 import { layoutGraph } from './layout';
 import { formatBytes } from './formatBytes';
 
@@ -17,6 +17,60 @@ export interface Highlight {
   active: boolean;
   nodes: Set<string>;
   edges: Set<string>;
+}
+
+export interface EdgePresentation {
+  color: string;
+  opacity: number;
+  strokeWidth: number;
+  strokeDasharray?: string;
+}
+
+const ORIGIN_EDGE_COLORS: Record<NodeOrigin, string> = {
+  application: '#15803d',
+  dependency: '#7e22ce',
+  system: '#0284c7',
+  unknown: '#64748b',
+  mixed: '#c2410c',
+};
+
+/** Visual encoding for one directed edge in the selected edge-color mode. */
+export function edgePresentation(
+  edge: ViewEdge,
+  mode: EdgeColorMode,
+  selectedId: string | null,
+  originById: ReadonlyMap<string, NodeOrigin>,
+  edgeIds: ReadonlySet<string>,
+): EdgePresentation {
+  const incident = edge.source === selectedId || edge.target === selectedId;
+  const opacity = selectedId && !incident ? 0.1 : 1;
+
+  if (mode === 'direction') {
+    if (!selectedId) return { color: '#64748b', opacity: 0.72, strokeWidth: 1.25 };
+    if (!incident) return { color: '#94a3b8', opacity, strokeWidth: 1 };
+    const reciprocal = edgeIds.has(`${edge.target}->${edge.source}`);
+    if (reciprocal) return { color: '#7e22ce', opacity, strokeWidth: 2.25 };
+    if (edge.target === selectedId) return { color: '#2563eb', opacity, strokeWidth: 2.25 };
+    return { color: '#d97706', opacity, strokeWidth: 2.25 };
+  }
+
+  const sourceOrigin = originById.get(edge.source) ?? 'unknown';
+  const targetOrigin = originById.get(edge.target) ?? 'unknown';
+  const unknown =
+    sourceOrigin === 'unknown' ||
+    targetOrigin === 'unknown' ||
+    sourceOrigin === 'mixed' ||
+    targetOrigin === 'mixed';
+  let color = ORIGIN_EDGE_COLORS[sourceOrigin];
+  if (sourceOrigin === 'application' && targetOrigin === 'dependency') color = '#2563eb';
+  if (sourceOrigin === 'application' && targetOrigin === 'system') color = '#64748b';
+  if (sourceOrigin === 'dependency' && targetOrigin === 'application') color = '#c2410c';
+  return {
+    color,
+    opacity,
+    strokeWidth: incident ? 2.25 : 1.4,
+    strokeDasharray: unknown ? '6 4' : undefined,
+  };
 }
 
 /** Stable display name for JVM-generated hidden lambda classes. */
@@ -69,7 +123,21 @@ export function estimateSize(
 }
 
 /** Which nodes/edges to emphasize given the selected node (its closed neighborhood). */
-export function computeHighlight(view: ViewGraph, selectedId: string | null): Highlight {
+export function computeHighlight(
+  view: ViewGraph,
+  selectedId: string | null,
+  selectedEdgeId: string | null = null,
+): Highlight {
+  if (selectedEdgeId) {
+    const edge = view.edges.find((candidate) => candidate.id === selectedEdgeId);
+    if (edge) {
+      return {
+        active: true,
+        nodes: new Set([edge.source, edge.target]),
+        edges: new Set([edge.id]),
+      };
+    }
+  }
   if (!selectedId) return { active: false, nodes: new Set(), edges: new Set() };
   const nodes = new Set<string>([selectedId]);
   const edges = new Set<string>();
@@ -101,10 +169,14 @@ export function toReactFlow(
   view: ViewGraph,
   abbrev: boolean,
   selectedId: string | null,
+  edgeColorMode: EdgeColorMode = 'direction',
+  selectedEdgeId: string | null = null,
 ): { nodes: RFNode<ClgNodeData>[]; edges: RFEdge[] } {
-  const highlight = computeHighlight(view, selectedId);
+  const highlight = computeHighlight(view, selectedId, selectedEdgeId);
   const visibleEdges = renderableEdges(view, highlight);
   const maxClassFileBytes = Math.max(0, ...view.nodes.map((node) => node.classFileBytes ?? 0));
+  const originById = new Map(view.nodes.map((node) => [node.id, node.origin]));
+  const edgeIds = new Set(view.edges.map((edge) => edge.id));
 
   const layoutInput = view.nodes.map((n) => {
     const label = nodeLabel(n, abbrev);
@@ -134,23 +206,30 @@ export function toReactFlow(
     };
   });
 
-  const edges: RFEdge[] = visibleEdges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    animated: false,
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      width: 18,
-      height: 18,
-      color: '#64748b',
-    },
-    style: {
-      stroke: '#64748b',
-      strokeWidth: 1.25,
-      opacity: highlight.active && !highlight.edges.has(e.id) ? 0.12 : 1,
-    },
-  }));
+  const edges: RFEdge[] = visibleEdges.map((e) => {
+    const presentation = edgePresentation(e, edgeColorMode, selectedId, originById, edgeIds);
+    const edgeSelected = e.id === selectedEdgeId;
+    return {
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      ariaLabel: `${e.source} resolves ${e.target}`,
+      animated: false,
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 18,
+        height: 18,
+        color: presentation.color,
+      },
+      style: {
+        stroke: presentation.color,
+        strokeWidth: edgeSelected ? 3.5 : presentation.strokeWidth,
+        strokeDasharray: presentation.strokeDasharray,
+        opacity: selectedEdgeId ? (edgeSelected ? 1 : 0.08) : presentation.opacity,
+      },
+      selected: edgeSelected,
+    };
+  });
 
   return { nodes, edges };
 }

@@ -11,6 +11,8 @@ const base: ViewState = {
   expandedPackages: new Set(),
   expandedTypes: new Set(),
   selectedNodeId: null,
+  selectedEdgeId: null,
+  edgeColorMode: 'direction',
 };
 
 const model: GraphModel = {

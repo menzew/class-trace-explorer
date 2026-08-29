@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   computeHighlight,
   displayClassName,
+  edgePresentation,
   estimateSize,
   nodeLabel,
   nodeSubtitle,
@@ -90,6 +91,13 @@ describe('computeHighlight', () => {
     expect([...h.nodes].sort()).toEqual(['a.A', 'a.B', 'a.C']);
     expect([...h.edges].sort()).toEqual(['a.A->a.B', 'a.B->a.C']);
   });
+
+  it('isolates a selected edge and its two endpoints', () => {
+    const h = computeHighlight(view, null, 'a.A->a.B');
+    expect(h.active).toBe(true);
+    expect([...h.nodes].sort()).toEqual(['a.A', 'a.B']);
+    expect([...h.edges]).toEqual(['a.A->a.B']);
+  });
 });
 
 describe('class-file footprint', () => {
@@ -106,6 +114,66 @@ describe('class-file footprint', () => {
     expect(nodes.nodes.find((node) => node.id === 'a.Small')?.data.sizeRatio).toBe(0.5);
     expect(nodes.nodes.find((node) => node.id === 'a.Large')?.data.sizeRatio).toBe(1);
     expect(nodes.nodes.find((node) => node.id === 'a.Unknown')?.data.sizeRatio).toBe(0);
+  });
+});
+
+describe('edgePresentation', () => {
+  const origins = new Map([
+    ['app.A', 'application' as const],
+    ['dep.B', 'dependency' as const],
+    ['unknown.C', 'unknown' as const],
+  ]);
+
+  it('distinguishes incoming, outgoing, and reciprocal selected edges', () => {
+    const ids = new Set(['app.A->dep.B', 'dep.B->app.A', 'unknown.C->app.A']);
+    expect(
+      edgePresentation(
+        { id: 'unknown.C->app.A', source: 'unknown.C', target: 'app.A' },
+        'direction',
+        'app.A',
+        origins,
+        ids,
+      ).color,
+    ).toBe('#2563eb');
+    expect(
+      edgePresentation(
+        { id: 'app.A->dep.B', source: 'app.A', target: 'dep.B' },
+        'direction',
+        'app.A',
+        origins,
+        ids,
+      ).color,
+    ).toBe('#7e22ce');
+    expect(
+      edgePresentation(
+        { id: 'app.A->unknown.D', source: 'app.A', target: 'unknown.D' },
+        'direction',
+        'app.A',
+        origins,
+        ids,
+      ).color,
+    ).toBe('#d97706');
+  });
+
+  it('colors origin transitions and dashes unknown ownership', () => {
+    const appDependency = edgePresentation(
+      { id: 'app.A->dep.B', source: 'app.A', target: 'dep.B' },
+      'origin',
+      null,
+      origins,
+      new Set(),
+    );
+    expect(appDependency.color).toBe('#2563eb');
+    expect(appDependency.strokeDasharray).toBeUndefined();
+    expect(
+      edgePresentation(
+        { id: 'unknown.C->app.A', source: 'unknown.C', target: 'app.A' },
+        'origin',
+        null,
+        origins,
+        new Set(),
+      ).strokeDasharray,
+    ).toBe('6 4');
   });
 });
 
@@ -134,5 +202,18 @@ describe('toReactFlow', () => {
 
     expect(toReactFlow(view, false, null).edges).toEqual([]);
     expect(toReactFlow(view, false, 'a.A').edges.map((edge) => edge.id)).toEqual(['edge:0']);
+  });
+
+  it('thickens a selected edge and dims the remaining edges', () => {
+    const view: ViewGraph = {
+      nodes: [classNode('a.A'), classNode('a.B'), classNode('a.C')],
+      edges: [
+        { id: 'a.A->a.B', source: 'a.A', target: 'a.B' },
+        { id: 'a.B->a.C', source: 'a.B', target: 'a.C' },
+      ],
+    };
+    const edges = toReactFlow(view, false, null, 'direction', 'a.A->a.B').edges;
+    expect(edges[0]).toMatchObject({ selected: true, style: { strokeWidth: 3.5, opacity: 1 } });
+    expect(edges[1]).toMatchObject({ selected: false, style: { opacity: 0.08 } });
   });
 });
